@@ -1,4 +1,4 @@
-# mcp-git-tools
+# mcp-01-git-tools
 
 A small MCP server in Python that exposes two git tools over stdio. This is part 1 of a series on MCP; the server side comes first, and a client that talks to it comes in the next part.
 
@@ -25,8 +25,8 @@ Failures raise `ToolError`, which the client sees as an error result with the re
 ## Setup
 
 ```bash
-git clone <repo-url> mcp-git-tools
-cd mcp-git-tools
+git clone <repo-url> mcp-01-git-tools
+cd mcp-01-git-tools
 uv sync
 ```
 
@@ -56,7 +56,7 @@ In Claude Code:
 
 ```bash
 claude mcp add git-tools -e GIT_TOOLS_REPO=/path/to/a/repo -- \
-  uv --directory /absolute/path/to/mcp-git-tools run git-tools-practice
+  uv --directory /absolute/path/to/mcp-01-git-tools run git-tools-practice
 ```
 
 ## Watching the raw protocol
@@ -78,7 +78,7 @@ The tests create a throwaway repo in a temp directory and call the tools through
 ## Layout
 
 ```
-mcp-git-tools/
+mcp-01-git-tools/
   src/git_tools_practice/
     git_ops.py   subprocess wrappers around git, return "OK: ..." or "ERROR: ..." strings
     server.py    the MCP tools; turns ERROR strings into ToolError
