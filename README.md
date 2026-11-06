@@ -8,7 +8,7 @@ No model is involved, so you don't need an API key. Anything that speaks MCP can
 
 | Tool | Arguments | What it does |
 |---|---|---|
-| `git_diff` | `staged: bool = True`, `path: str \| None = None` | Runs `git diff --staged` (or plain `git diff` when `staged` is false), optionally for one file. Returns `(no changes)` if the diff is empty. Diffs over 10,000 characters are cut, with a note telling the model to call again with `path`. |
+| `git_diff` | `staged: bool = True`, `path: str \| None = None` | Runs `git diff --staged` (or plain `git diff` when `staged` is false), optionally for one file. Returns `(no changes)` if the diff is empty. The tool cuts diffs over 10,000 characters and adds a note telling the model to call again with `path`. |
 | `git_commit` | `message: str` | Runs `git commit -m <message>` on whatever is staged. Rejects empty messages. |
 
 The tool descriptions come from the docstrings and the input schemas come from the type hints, so there's nothing to keep in sync by hand. The `git_commit` docstring tells the model to call `git_diff` first so the message matches the real changes.
@@ -25,7 +25,7 @@ Failures raise `ToolError`, which the client sees as an error result with the re
 ## Setup
 
 ```bash
-git clone <repo-url> mcp-01-git-tools
+git clone https://github.com/nononsense-ai/mcp-01-git-tools.git
 cd mcp-01-git-tools
 uv sync
 ```
@@ -50,7 +50,7 @@ npx @modelcontextprotocol/inspector@latest \
   uv run git-tools-practice
 ```
 
-The `-e` flag matters. The Inspector doesn't forward your shell's variables to the server it launches, so `GIT_TOOLS_REPO=... npx ...` won't work.
+Keep the `-e` flag. The Inspector doesn't forward your shell's variables to the server it launches, so `GIT_TOOLS_REPO=... npx ...` won't work.
 
 In Claude Code:
 
@@ -88,13 +88,22 @@ mcp-01-git-tools/
     test_server.py
 ```
 
-`git_ops.py` knows nothing about MCP, and `server.py` knows nothing about subprocesses. That split is deliberate: the git code stays testable without a protocol in the way.
+`git_ops.py` knows nothing about MCP, and `server.py` knows nothing about subprocesses. The split keeps the git code testable without a protocol in the way.
 
 ## Things to know
 
 - stdout belongs to the protocol. Don't `print()` in tool code; log to stderr.
 - `git_commit` has no approval step. The host or client is responsible for asking a human before it sends `tools/call`.
 - [src/git_tools_practice/__init__.py](src/git_tools_practice/__init__.py) still holds the `uv init` placeholder `main()`; the real entry point is `server:main`.
+
+## Code at each step
+
+The tutorial builds the server in steps. The `steps` branch holds steps 1 to 6, tagged `p01-step-1` through `p01-step-6`; `p01-step-7` is the final code on `main`. Steps 4 and 5 share a commit, because the Inspector runs the same code as the entry point. To see the code at a step:
+
+```bash
+git checkout p01-step-3
+git checkout main   # back to the final code
+```
 
 ## Links
 
