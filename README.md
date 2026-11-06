@@ -8,12 +8,12 @@ No model is involved, so you don't need an API key. Anything that speaks MCP can
 
 | Tool | Arguments | What it does |
 |---|---|---|
-| `git_diff` | `staged: bool = True` | Runs `git diff --staged` (or plain `git diff` when `staged` is false). Returns `(no changes)` if the diff is empty. |
+| `git_diff` | `staged: bool = True`, `path: str \| None = None` | Runs `git diff --staged` (or plain `git diff` when `staged` is false), optionally for one file. Returns `(no changes)` if the diff is empty. Diffs over 10,000 characters are cut, with a note telling the model to call again with `path`. |
 | `git_commit` | `message: str` | Runs `git commit -m <message>` on whatever is staged. Rejects empty messages. |
 
 The tool descriptions come from the docstrings and the input schemas come from the type hints, so there's nothing to keep in sync by hand. The `git_commit` docstring tells the model to call `git_diff` first so the message matches the real changes.
 
-Failures raise `ToolError`, which the client sees as an error result with the reason in the text. Git timeouts (10 seconds) and a missing `git` binary get their own messages.
+Failures raise `ToolError`, which the client sees as an error result with the reason in the text. Git timeouts (10 seconds), a missing `git` binary and a `GIT_TOOLS_REPO` that isn't a directory each get their own message.
 
 ## Requirements
 
@@ -73,7 +73,7 @@ GIT_TOOLS_REPO=/path/to/a/repo uv run python scripts/raw_jsonrpc.py
 uv run pytest
 ```
 
-The tests create a throwaway repo in a temp directory and call the tools through an in-memory MCP client. Right now they only cover `git_diff` (nothing staged, and one staged file). `git_commit` has no tests yet.
+The tests create a throwaway repo in a temp directory and call the tools through an in-memory MCP client. They cover `git_diff` (nothing staged, a staged file, one file by `path`, truncation), `git_commit` (success, empty message, nothing staged) and a bad `GIT_TOOLS_REPO`.
 
 ## Layout
 
@@ -92,9 +92,8 @@ mcp-01-git-tools/
 
 ## Things to know
 
-- stdout belongs to the protocol. Don't `print()` in tool code; log to stderr. There's a `print("DEBUG: git_diff called")` left in `git_diff` in [server.py](src/git_tools_practice/server.py), which you should delete before relying on this server.
+- stdout belongs to the protocol. Don't `print()` in tool code; log to stderr.
 - `git_commit` has no approval step. The host or client is responsible for asking a human before it sends `tools/call`.
-- `GIT_TOOLS_REPO` isn't validated, so a path that doesn't exist surfaces as a "git is not installed" error, which is misleading.
 - [src/git_tools_practice/__init__.py](src/git_tools_practice/__init__.py) still holds the `uv init` placeholder `main()`; the real entry point is `server:main`.
 
 ## Links
