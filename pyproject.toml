@@ -7,6 +7,9 @@ authors = [{ name = "kaushik", email = "kaushikam@gmail.com" }]
 requires-python = ">=3.14"
 dependencies = ["mcp[cli]>=2.3.0"]
 
+[project.scripts]
+git-tools-practice = "git_tools_practice.server:main"
+
 [build-system]
 requires = ["uv_build>=0.13.1,<0.14.0"]
 build-backend = "uv_build"
