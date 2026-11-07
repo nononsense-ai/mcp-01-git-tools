@@ -101,3 +101,11 @@ async def test_commit_with_nothing_staged_keeps_the_reason(repo):
         result = await client.call_tool("git_commit", {"message": "nothing here"})
     assert result.is_error
     assert "nothing" in text_of(result).lower()
+
+
+async def test_diff_unknown_path_is_an_error_not_no_changes(repo):
+    async with Client(mcp) as client:
+        result = await client.call_tool("git_diff", {"path": "no/such/file.txt"})
+    assert result.is_error
+    assert "path not found" in text_of(result)
+

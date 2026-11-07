@@ -45,6 +45,14 @@ def run_git_diff(staged: bool = True, path: Optional[str] = None) -> str:
     if result.returncode != 0:
         return f"ERROR (exit {result.returncode}): {result.stderr or result.stdout}"
     if not result.stdout:
+        if path:
+            known = _run_git(["git", "ls-files", "--error-unmatch", "--", path])
+            if isinstance(known, str):
+                return known
+            if known.returncode != 0 and not os.path.exists(
+                os.path.join(repo_dir() or ".", path)
+            ):
+                return f"ERROR: path not found in the repo: {path}"
         return "OK: (no changes)"
 
     diff = result.stdout

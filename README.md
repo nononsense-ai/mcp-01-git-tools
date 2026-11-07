@@ -8,7 +8,7 @@ No model is involved, so you don't need an API key. Anything that speaks MCP can
 
 | Tool | Arguments | What it does |
 |---|---|---|
-| `git_diff` | `staged: bool = True`, `path: str \| None = None` | Runs `git diff --staged` (or plain `git diff` when `staged` is false), optionally for one file. Returns `(no changes)` if the diff is empty. The tool cuts diffs over 10,000 characters and adds a note telling the model to call again with `path`. |
+| `git_diff` | `staged: bool = True`, `path: str \| None = None` | Runs `git diff --staged` (or plain `git diff` when `staged` is false), optionally for one file. Returns `(no changes)` if the diff is empty, or an error if `path` does not exist in the repo. The tool cuts diffs over 10,000 characters and adds a note telling the model to call again with `path`. |
 | `git_commit` | `message: str` | Runs `git commit -m <message>` on whatever is staged. Rejects empty messages. |
 
 The tool descriptions come from the docstrings and the input schemas come from the type hints, so there's nothing to keep in sync by hand. The `git_commit` docstring tells the model to call `git_diff` first so the message matches the real changes.
@@ -93,12 +93,12 @@ mcp-01-git-tools/
 ## Things to know
 
 - stdout belongs to the protocol. Don't `print()` in tool code; log to stderr.
-- `git_commit` has no approval step. The host or client is responsible for asking a human before it sends `tools/call`.
+- `git_commit` has no approval step. The host or client is responsible for asking a human before it sends `tools/call`. Keep tool approval on for `git_commit`; do not connect this server to a client that auto-approves it.
 - [src/git_tools_practice/__init__.py](src/git_tools_practice/__init__.py) still holds the `uv init` placeholder `main()`; the real entry point is `server:main`.
 
 ## Code at each step
 
-The tutorial builds the server in steps. The `steps` branch holds steps 1 to 6, tagged `p01-step-1` through `p01-step-6`; `p01-step-7` is the final code on `main`. Steps 4 and 5 share a commit, because the Inspector runs the same code as the entry point. To see the code at a step:
+The tutorial builds the server in steps. The `steps` branch holds steps 1 to 6, tagged `p01-step-1` through `p01-step-6`; `p01-step-7` is the code at the end of Step 7, and `p01-step-8` adds the unknown-path check from Step 8F, which is the final code on `main`. Steps 4 and 5 share a commit, because the Inspector runs the same code as the entry point. To see the code at a step:
 
 ```bash
 git checkout p01-step-3
