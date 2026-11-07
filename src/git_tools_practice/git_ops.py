@@ -2,7 +2,7 @@ import os
 import subprocess
 from typing import Optional
 
-GIT_TIMEOUT_SECONDS = 0.001
+GIT_TIMEOUT_SECONDS = 10
 MAX_DIFF_CHARS = 10_000
 
 
@@ -24,8 +24,8 @@ def _run_git(cmd: list[str]) -> subprocess.CompletedProcess[str] | str:
             cwd=d,
             stdin=subprocess.DEVNULL,
         )
-    # except subprocess.TimeoutExpired:
-        # return f"ERROR: git timed out after {GIT_TIMEOUT_SECONDS}s"
+    except subprocess.TimeoutExpired:
+        return f"ERROR: git timed out after {GIT_TIMEOUT_SECONDS}s"
     except FileNotFoundError:
         return "ERROR: git is not installed or not on PATH"
 
@@ -45,14 +45,14 @@ def run_git_diff(staged: bool = True, path: Optional[str] = None) -> str:
     if result.returncode != 0:
         return f"ERROR (exit {result.returncode}): {result.stderr or result.stdout}"
     if not result.stdout:
-        if path:
-            known = _run_git(["git", "ls-files", "--error-unmatch", "--", path])
-            if isinstance(known, str):
-                return known
-            if known.returncode != 0 and not os.path.exists(
-                os.path.join(repo_dir() or ".", path)
-            ):
-                return f"ERROR: path not found in the repo: {path}"
+        # if path:
+            # known = _run_git(["git", "ls-files", "--error-unmatch", "--", path])
+            # if isinstance(known, str):
+                # return known
+            # if known.returncode != 0 and not os.path.exists(
+                # os.path.join(repo_dir() or ".", path)
+            # ):
+                # return f"ERROR: path not found in the repo: {path}"
         return "OK: (no changes)"
 
     diff = result.stdout
