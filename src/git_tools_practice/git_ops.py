@@ -2,7 +2,7 @@ import os
 import subprocess
 from typing import Optional
 
-GIT_TIMEOUT_SECONDS = 10
+GIT_TIMEOUT_SECONDS = 0.001
 MAX_DIFF_CHARS = 10_000
 
 
