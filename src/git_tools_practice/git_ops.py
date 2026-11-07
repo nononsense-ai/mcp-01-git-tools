@@ -13,8 +13,8 @@ def repo_dir() -> str | None:
 def _run_git(cmd: list[str]) -> subprocess.CompletedProcess[str] | str:
     """Run a git command. Returns the result, or an ERROR string on failure."""
     d = repo_dir()
-    if d and not os.path.isdir(d):
-        return f"ERROR: GIT_TOOLS_REPO is not a directory: {d}"
+    # if d and not os.path.isdir(d):
+        # return f"ERROR: GIT_TOOLS_REPO is not a directory: {d}"
     try:
         return subprocess.run(
             cmd,
