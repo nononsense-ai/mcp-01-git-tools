@@ -20,7 +20,7 @@ Failures raise `ToolError`, which the client sees as an error result with the re
 - Python 3.14 or newer
 - `git`
 - [uv](https://docs.astral.sh/uv/)
-- Node.js, only if you want the Inspector (it runs through `npx`)
+- Node.js 22.19 or newer, only if you want the Inspector (it runs through `npx`)
 
 ## Setup
 
@@ -84,7 +84,7 @@ Quit Claude Desktop completely (Cmd+Q on a Mac) and reopen it. `git-tools` shoul
 
 ## Watching the raw protocol
 
-[scripts/raw_jsonrpc.py](scripts/raw_jsonrpc.py) starts the server as a subprocess and speaks to it with hand-written JSON lines, no SDK. It walks through the four-step handshake: `initialize`, the `notifications/initialized` notification (no `id`, so no reply), `tools/list`, and a `tools/call` for `git_diff`.
+[scripts/raw_jsonrpc.py](scripts/raw_jsonrpc.py) starts the server as a subprocess and speaks to it with hand-written JSON lines, no SDK. It walks through the handshake used by MCP spec 2025-11-25 and earlier (the newest spec, 2026-07-28, drops the first two steps, but SDK 2.x still serves this one): `initialize`, the `notifications/initialized` notification (no `id`, so no reply), `tools/list`, and a `tools/call` for `git_diff`.
 
 ```bash
 GIT_TOOLS_REPO=/path/to/a/repo uv run python scripts/raw_jsonrpc.py
