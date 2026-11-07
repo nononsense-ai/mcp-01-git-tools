@@ -2,7 +2,7 @@ import os
 import subprocess
 from typing import Optional
 
-GIT_TIMEOUT_SECONDS = 10
+GIT_TIMEOUT_SECONDS = 0.001
 MAX_DIFF_CHARS = 10_000
 
 
@@ -13,8 +13,8 @@ def repo_dir() -> str | None:
 def _run_git(cmd: list[str]) -> subprocess.CompletedProcess[str] | str:
     """Run a git command. Returns the result, or an ERROR string on failure."""
     d = repo_dir()
-    # if d and not os.path.isdir(d):
-        # return f"ERROR: GIT_TOOLS_REPO is not a directory: {d}"
+    if d and not os.path.isdir(d):
+        return f"ERROR: GIT_TOOLS_REPO is not a directory: {d}"
     try:
         return subprocess.run(
             cmd,
@@ -24,8 +24,8 @@ def _run_git(cmd: list[str]) -> subprocess.CompletedProcess[str] | str:
             cwd=d,
             stdin=subprocess.DEVNULL,
         )
-    except subprocess.TimeoutExpired:
-        return f"ERROR: git timed out after {GIT_TIMEOUT_SECONDS}s"
+    # except subprocess.TimeoutExpired:
+        # return f"ERROR: git timed out after {GIT_TIMEOUT_SECONDS}s"
     except FileNotFoundError:
         return "ERROR: git is not installed or not on PATH"
 
