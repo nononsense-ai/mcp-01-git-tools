@@ -59,6 +59,29 @@ claude mcp add git-tools -e GIT_TOOLS_REPO=/path/to/a/repo -- \
   uv --directory /absolute/path/to/mcp-01-git-tools run git-tools-practice
 ```
 
+In Claude Desktop (this is the exercise in the video): open Settings, Developer, Edit Config, and add the server to `claude_desktop_config.json`. Desktop doesn't use your shell's PATH, so give the full path to `uv` (`which uv`) and use absolute paths everywhere:
+
+```json
+{
+  "mcpServers": {
+    "git-tools": {
+      "command": "/absolute/path/to/uv",
+      "args": [
+        "--directory",
+        "/absolute/path/to/mcp-01-git-tools",
+        "run",
+        "git-tools-practice"
+      ],
+      "env": {
+        "GIT_TOOLS_REPO": "/absolute/path/to/a/repo"
+      }
+    }
+  }
+}
+```
+
+Quit Claude Desktop completely (Cmd+Q on a Mac) and reopen it. `git-tools` should appear with `git_diff` and `git_commit`. If it doesn't, check `~/Library/Logs/Claude/mcp-server-git-tools.log`. Use a throwaway repo for `GIT_TOOLS_REPO`, and keep Desktop's per-call approval on for `git_commit`.
+
 ## Watching the raw protocol
 
 [scripts/raw_jsonrpc.py](scripts/raw_jsonrpc.py) starts the server as a subprocess and speaks to it with hand-written JSON lines, no SDK. It walks through the four-step handshake: `initialize`, the `notifications/initialized` notification (no `id`, so no reply), `tools/list`, and a `tools/call` for `git_diff`.
